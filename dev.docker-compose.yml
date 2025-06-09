@@ -1,0 +1,51 @@
+version: '3.8'
+
+x-base-config: &base-config
+  command: "tail -f /dev/null"
+  volumes:
+    - /home/bbungsang/git/serverless_testbed/custom_nodes:/comfyui/custom_nodes
+    - /home/bbungsang/git/serverless_testbed/models/checkpoints:/comfyui/models/checkpoints
+    - /home/bbungsang/git/serverless_testbed/models/vae:/comfyui/models/vae
+    - /home/bbungsang/git/serverless_testbed/models/loras:/comfyui/models/loras
+    - /home/bbungsang/git/serverless_testbed/models/controlnet:/comfyui/models/controlnet
+    - /home/bbungsang/git/serverless_testbed/models/ipadapter:/comfyui/models/ipadapter
+    - /home/bbungsang/git/serverless_testbed/models/upscale_models:/comfyui/models/upscale_models
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            device_ids: ['0']
+            capabilities: [gpu]
+  environment:
+    - NVIDIA_VISIBLE_DEVICES=0
+  network_mode: host
+  tty: true
+  stdin_open: true
+
+services:
+  serverless-dev:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    image: serverless:dev
+    <<: *base-config
+
+  serverless-maintain:
+    image: public.ecr.aws/r2p3x7v0/temp/large:latest
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - SERVE_API_LOCALLY=true
+      - COMFYUI_PATH=/comfyui/custom_nodes
+      - COMFYUI_MODEL_PATH=/comfyui/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['1']
+              capabilities: [gpu]
+    network_mode: host
+    tty: true
+    stdin_open: true
+    command: "tail -f /dev/null"

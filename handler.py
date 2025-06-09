@@ -483,6 +483,7 @@ def handler(job):
                 errors.append(warning_msg)
 
         print(f"worker-comfyui - Processing {len(outputs)} output nodes...")
+        final_result = {}
         for node_id, node_output in outputs.items():
             if "images" in node_output:
                 print(
@@ -582,6 +583,8 @@ def handler(job):
                 print(
                     f"worker-comfyui - --> If this output is useful, please consider opening an issue on GitHub to discuss adding support."
                 )
+                for other_key in other_keys:
+                    final_result[other_key] = node_output[other_key]
 
     except websocket.WebSocketException as e:
         print(f"worker-comfyui - WebSocket Error: {e}")
@@ -599,8 +602,6 @@ def handler(job):
         if ws and ws.connected:
             print(f"worker-comfyui - Closing websocket connection.")
             ws.close()
-
-    final_result = {}
 
     if output_data:
         final_result["images"] = output_data

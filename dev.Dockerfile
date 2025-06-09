@@ -9,6 +9,9 @@ ENV PIP_PREFER_BINARY=1
 ENV PYTHONUNBUFFERED=1
 # Speed up some cmake builds
 ENV CMAKE_BUILD_PARALLEL_LEVEL=8
+# Set ComfyUI paths
+ENV COMFYUI_PATH=/comfyui/custom_nodes
+ENV COMFYUI_MODEL_PATH=/comfyui/models
 
 # Install Python, git and other necessary tools
 RUN apt-get update && apt-get install -y \
@@ -102,38 +105,5 @@ RUN pip install omegaconf pytorch_lightning open_clip_torch openai-clip fsspec k
 RUN pip install spandrel
 RUN pip install --upgrade "numpy>=1.24"
 
-# Group 1 (About 20GB)
-COPY models/Stable-diffusion/addillustri_v40.safetensors models/checkpoints/
-COPY models/Stable-diffusion/animagine-xl-3.1.safetensors models/checkpoints/
-COPY models/Stable-diffusion/anything-xl-v1.safetensors models/checkpoints/
-
-# Group 2 (About 20GB)
-COPY models/Stable-diffusion/boleromixPonyV14_XL_fix.safetensors models/checkpoints/
-COPY models/Stable-diffusion/Illustrious-XL-v2.0.safetensors models/checkpoints/
-COPY models/Stable-diffusion/illustriousXLv01.safetensors models/checkpoints/
-
-# Group 3 (About 20GB)
-COPY models/Stable-diffusion/illustriousXLv10.safetensors models/checkpoints/
-COPY models/Stable-diffusion/juggernaut_xl.safetensors models/checkpoints/
-COPY models/Stable-diffusion/MINTSDXL_MintChocoChip_B_(NOOBAI0.5).safetensors models/checkpoints/
-
-# Group 4 (About 20GB)
-COPY models/Stable-diffusion/noobaicyberfixV3.safetensors models/checkpoints/
-COPY models/Stable-diffusion/noobaiXLNAIXL_epsilonPred11Version.safetensors models/checkpoints/
-COPY models/Stable-diffusion/noobaiXLNAIXL_vPred10Version.safetensors models/checkpoints/
-
-# Group 5 (About 20GB)
-COPY models/Stable-diffusion/ntrMIXIllustriousXL_v35.safetensors models/checkpoints/
-COPY models/Stable-diffusion/ntrMIXILLustriousXL_xiii.safetensors models/checkpoints/
-COPY models/Stable-diffusion/realvis_xl_v40.safetensors models/checkpoints/
-
-# Group 6 (About 2.2GB)
-COPY models/Stable-diffusion/xxmix9realistic_v40.safetensors models/checkpoints/
-COPY models/VAE/* models/vae/
-COPY models/LoRA/* models/loras/
-COPY models/ControlNet/* models/controlnet/
-COPY models/ipadapter/* models/ipadapter/
-COPY models/upscale_models/* models/upscale_models/
-
-# Start container
-CMD ["/start.sh"]
+RUN python /comfyui/custom_nodes/ComfyUI-Impact-Pack/install.py
+RUN pip install -r /comfyui/custom_nodes/LCM_Inpaint_Outpaint_Comfy/requirements.txt
